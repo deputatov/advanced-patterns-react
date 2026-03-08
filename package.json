@@ -2,6 +2,9 @@
   "name": "advanced-react",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"**/*.{ts,tsx}\" --fix",
