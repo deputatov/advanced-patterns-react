@@ -22,7 +22,7 @@ function ThemeProvider({
    defaultTheme = 'system',
    storageKey = 'theme'
 }: ThemeProviderProps) {
-   const [theme, setTheme] = useState<Theme>(
+   const [theme, setTheme] = useState<Theme>(() =>
       getItem(storageKey) ?? defaultTheme,
    ) 
 
