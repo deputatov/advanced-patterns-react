@@ -1,7 +1,7 @@
 import Spinner from "@/features/shared/components/ui/Spinner";
 
 import { ExperienceCard } from "./ExperienceCard";
-import type { ExperienceForList } from "./types";
+import type { ExperienceForList } from "../types";
 
 type ExperienceListProps = {
     experiences: ExperienceForList[];
