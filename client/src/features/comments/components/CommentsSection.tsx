@@ -2,6 +2,7 @@ import { Experience } from "@advanced-react/server/database/schema";
 
 import { trpc } from "@/trpc";
 
+import { CommentCreateForm } from "./CommentsCreaterForm";
 import CommentsList from "./CommentsList";
 
 type CommentsSectionProps = {
@@ -27,6 +28,8 @@ export function CommentsSection({
   return (
     <div className="space-y-4">
       <h3 className="font-semibold">Comments ({commentsCount})</h3>
+
+      <CommentCreateForm experienceId={experienceId} />
 
       <CommentsList
         comments={commentsQuery.data ?? []}
