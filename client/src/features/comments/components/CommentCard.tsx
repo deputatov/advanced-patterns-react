@@ -2,6 +2,16 @@ import { useState } from "react";
 
 import { Button } from "@/features/shared/components/ui/Button";
 import Card from "@/features/shared/components/ui/Card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/features/shared/components/ui/Dialog";
+import { useToast } from "@/features/shared/hooks/useToast";
+import { trpc } from "@/trpc";
 
 import type { CommentsForList } from "../types";
 import { CommentEditForm } from "./CommentEditForm";
@@ -21,7 +31,7 @@ export default function CommentCard({ comment }: CommentCardProps) {
     <Card className="space-y-4">
       <CommentCardHeader comment={comment} />
       <CommentCardContent comment={comment} />
-      <CommentCardButtons setIsEditing={setIsEditing} />
+      <CommentCardButtons comment={comment} setIsEditing={setIsEditing} />
     </Card>
   );
 }
@@ -45,16 +55,80 @@ function CommentCardContent({ comment }: CommentCardContentProps) {
   return <p>{comment.content}</p>;
 }
 
-type CommentCardButtonsProps = {
+type CommentCardButtonsProps = Pick<CommentCardProps, "comment"> & {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-}
+};
 
-function CommentCardButtons({ setIsEditing }: CommentCardButtonsProps) {
+function CommentCardButtons({
+  comment,
+  setIsEditing,
+}: CommentCardButtonsProps) {
+  const utils = trpc.useUtils();
+  const { toast } = useToast();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const deleteMutation = trpc.comments.delete.useMutation({
+    onSuccess: async () => {
+      await Promise.all([
+        utils.comments.byExperienceId.invalidate({
+          experienceId: comment.experienceId,
+        }),
+        utils.experiences.feed.invalidate(),
+      ]);
+
+      setIsDeleteDialogOpen(false);
+
+      toast({
+        title: "Comment deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error deleting comment",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="flex gap-4">
       <Button variant="link" onClick={() => setIsEditing(true)}>
         Edit
       </Button>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogTrigger asChild>
+          <Button variant="link" className="text-red-500">
+            Delete
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete comment</DialogTitle>
+          </DialogHeader>
+          <p>
+            Are you sure you want to delete this comment? This action cannot be
+            undone.
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                deleteMutation.mutate({ id: comment.id });
+              }}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
-  )
+  );
 }
