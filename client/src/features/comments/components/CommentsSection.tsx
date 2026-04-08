@@ -1,6 +1,6 @@
 import { Experience } from "@advanced-react/server/database/schema";
 
-import { trpc } from "@/trpc";
+import { trpc } from "@/router";
 
 import { CommentCreateForm } from "./CommentsCreaterForm";
 import CommentsList from "./CommentsList";
