@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 import { createTRPCQueryUtils, createTRPCReact, httpBatchLink } from "@trpc/react-query";
 
+import Spinner from "./features/shared/components/ui/Spinner";
 import { env } from "./lib/utils/env";
 import { routeTree } from "./routeTree.gen";
 export const queryClient = new QueryClient();
@@ -30,6 +31,11 @@ export function createRouter() {
     context: {
       trpcQueryUtils,
     },
+    defaultPendingComponent: () => (
+      <div className="flex items-center justify-center">
+        <Spinner />
+      </div>
+    ),
     Wrap: function WrapComponent({ children }) {
       return (
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
